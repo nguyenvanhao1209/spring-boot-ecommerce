@@ -7,8 +7,11 @@ import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.UserRepository;
+import com.example.ecommerce.service.EmailService;
 import com.example.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,9 +65,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return userMapper.toDTOs(users);
+    public Page<UserDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toDTO);
     }
 
     @Override
@@ -90,11 +92,4 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDTO(user);
     }
 
-    @Override
-    public boolean checkUserId(Authentication authentication, Long id) {
-        String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return user.getId().equals(id);
-    }
 }

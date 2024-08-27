@@ -19,13 +19,22 @@ public class JwtServiceImpl implements JwtService {
     private String secret;
     @Value("${jwt.expiration}")
     private Long expiration;
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
+
     @Override
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), expiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject){
+    @Override
+    public String refreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername(), refreshExpiration);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, Long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
