@@ -4,6 +4,8 @@ import com.example.ecommerce.dto.ChangePasswordRequest;
 import com.example.ecommerce.dto.RegisterRequest;
 import com.example.ecommerce.dto.UserDto;
 import com.example.ecommerce.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -13,7 +15,7 @@ public interface UserService {
     public User getUserByEmail(String email);
     public void changePassword(String email, ChangePasswordRequest request);
 
-    public List<UserDto> getAllUsers();
+    public Page<UserDto> getAllUsers(Pageable pageable);
 
     public UserDto getUserById(Long id);
 
@@ -21,5 +23,4 @@ public interface UserService {
 
     public UserDto changeName(Long id, String newName);
 
-    public boolean checkUserId(Authentication authentication, Long id);
 }

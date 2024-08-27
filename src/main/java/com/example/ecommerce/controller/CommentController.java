@@ -3,6 +3,7 @@ package com.example.ecommerce.controller;
 import com.example.ecommerce.dto.CommentDto;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.CommentService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class CommentController {
 
     @PostMapping("/product/{productId}/")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Add comment", description = "Add comment to product")
     public ResponseEntity<Object> addComment(
             @PathVariable Long productId,
             @AuthenticationPrincipal UserDetails userDetails,
@@ -31,6 +33,7 @@ public class CommentController {
     }
 
     @GetMapping("/product/{productId}/")
+    @Operation(summary = "Get comments by product", description = "Get comments by product")
     public ResponseEntity<List<CommentDto>> getCommentsByProduct(@PathVariable Long productId){
         return ResponseEntity.ok(commentService.getCommentsByProduct(productId));
     }

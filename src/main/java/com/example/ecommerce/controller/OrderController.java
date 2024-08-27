@@ -5,6 +5,7 @@ import com.example.ecommerce.dto.OrderDto;
 import com.example.ecommerce.model.Order;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ public class OrderController {
 
     @PostMapping("/")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Create order", description = "Create a new order")
     public ResponseEntity<OrderDto> createOrder(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody CreateOrderRequest createOrderRequest
@@ -33,6 +35,7 @@ public class OrderController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all orders", description = "Get all orders")
     public ResponseEntity<List<OrderDto>> getAllOrders(){
         List<OrderDto> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
@@ -40,6 +43,7 @@ public class OrderController {
 
     @GetMapping("/user/")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get user orders", description = "Get orders of the current user")
     public ResponseEntity<List<OrderDto>> getUserOrders(
             @AuthenticationPrincipal UserDetails userDetails
     ){
@@ -50,6 +54,7 @@ public class OrderController {
 
     @PutMapping("/{orderId}/status/")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update order status", description = "Update order status by id")
     public ResponseEntity<OrderDto> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestParam Order.OrderStatus status

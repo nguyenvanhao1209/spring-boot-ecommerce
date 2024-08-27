@@ -1,11 +1,12 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.*;
-import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.JwtService;
 import com.example.ecommerce.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +27,8 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/login/")
-    public ResponseEntity<LoginRespose> login(
+    @Operation(summary = "Login", description = "Authenticate user and return JWT token")
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest loginRequest
     ) {
         authenticationManager.authenticate(
@@ -37,10 +39,12 @@ public class AuthController {
         );
         UserDetails userDetails = userService.getUserByEmail(loginRequest.getEmail());
         String token = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(new LoginRespose(token));
+        String refreshToken = jwtService.refreshToken(userDetails);
+        return ResponseEntity.ok(new LoginResponse(token, refreshToken));
     }
 
     @PostMapping("/register/")
+    @Operation(summary = "Register", description = "Register a new user")
     public ResponseEntity<UserDto> register(
             @Valid @RequestBody RegisterRequest registerRequest
     ) {
@@ -48,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/change-password/")
+    @Operation(summary = "Change password", description = "Change user password")
     public ResponseEntity<?> changePassword(
             @Valid @RequestBody ChangePasswordRequest changePasswordRequest
     ) {
@@ -56,4 +61,18 @@ public class AuthController {
         userService.changePassword(email, changePasswordRequest);
         return ResponseEntity.ok().body("Password changed successfully");
     }
+
+    @PostMapping("/refresh/")
+    @Operation(summary = "Refresh token", description = "Refresh JWT token")
+    public ResponseEntity<RefreshResponse> refresh(
+            @Valid @RequestBody RefreshRequest refreshRequest
+    ) {
+        UserDetails userDetails = userService.getUserByEmail(jwtService.extractUsername(refreshRequest.getRefreshToken()));
+        if (!jwtService.validateToken(refreshRequest.getRefreshToken(), userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        String token = jwtService.generateToken(userDetails);
+        return ResponseEntity.ok(new RefreshResponse(token));
+    }
+
 }
